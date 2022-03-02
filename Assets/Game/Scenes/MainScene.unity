@@ -169,7 +169,7 @@ MonoBehaviour:
   parentSphere: {fileID: 410250249}
   sphereObject: {fileID: 857846091194568222, guid: fc63033382d2f324a986e9b747457c1b, type: 3}
   pooledSpheres: []
-  projectilePoolAmount: 200
+  projectilePoolAmount: 40
 --- !u!1 &700201700
 GameObject:
   m_ObjectHideFlags: 0
