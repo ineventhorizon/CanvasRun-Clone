@@ -14,6 +14,14 @@ public class Gate : MonoBehaviour
     //Amount of rows/columns to add to the canvas
     private int amount;
     // Start is called before the first frame update
+    private void OnEnable()
+    {
+        Observer.StackChanged += SetText;
+    }
+    private void OnDisable()
+    {
+        Observer.StackChanged -= SetText;
+    }
     void Start()
     {
         amount = Random.Range(1, 6);
@@ -33,10 +41,10 @@ public class Gate : MonoBehaviour
         switch (gateType)
         {
             case GateType.WIDTH:
-                gateText.SetText((amount * StackManager.Instance.Width).ToString());
+                gateText.SetText((amount * StackManager.Instance.Length).ToString());
                 break;
             case GateType.LENGHT:
-                gateText.SetText((amount * StackManager.Instance.Length).ToString());
+                gateText.SetText((amount * StackManager.Instance.Width).ToString());
                 break;
             default:
                 break;

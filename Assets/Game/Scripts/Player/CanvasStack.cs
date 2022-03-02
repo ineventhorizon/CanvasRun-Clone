@@ -5,10 +5,9 @@ using NaughtyAttributes;
 
 public class CanvasStack : MonoBehaviour
 {
-    [SerializeField, ReadOnly] private List<CanvasSphere> stack;
+    [SerializeField, ReadOnly] private List<List<CanvasSphere>> stack = new List<List<CanvasSphere>>();
     [SerializeField] private Transform rootPoint;
     //x, y
-    [SerializeField] private int maxWidth, maxLength;
     [SerializeField] private int width, length;
     private float stackGap => SettingsManager.CanvasSettings.gap;
     private Vector3 offset;
@@ -29,32 +28,32 @@ public class CanvasStack : MonoBehaviour
     }
     private void FirstLayout()
     {
-        for (int i = 0; i < width; i++)
+        for(int i = 0; i < width; i++)
         {
-            var x = (i - (width / 2) ) * stackGap;
-            for (int j = 0; j < length; j++)
+            var x = (rootPoint.transform.position.x - i)*stackGap;
+            stack.Add(new List<CanvasSphere>());
+            for(int j = 0; j < length; j++)
             {
                 var z = (rootPoint.position.z - j) * stackGap;
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
                 sphere.gameObject.SetActive(true);
-                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
-                sphere.transform.localPosition = rootPoint.transform.localPosition + newPos;
                 sphere.transform.SetParent(this.transform);
-                stack.Add(sphere);
+                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                sphere.transform.position = newPos;
+                stack[i].Add(sphere);
             }
         }
 
-       
-    }
-    void Start()
-    {
-        
+        UpdateRoot();
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
         UpdateOffSet();
+        //FollowSideMovementRoot();
         StackMovement();
     }
     private void UpdateOffSet()
@@ -62,26 +61,33 @@ public class CanvasStack : MonoBehaviour
         offset = Vector3.back * stackGap;
         //offsetFirst = Vector3.back * firstStackGap;
     }
+    private void FollowSideMovementRoot()
+    {
+        transform.position = rootPoint.position + offset;
+    }
+
+    private void UpdateRoot()
+    {
+        var tempPos = this.transform.position;
+        tempPos.x = rootPoint.transform.position.x + (width / 2 * (stackGap));
+        tempPos.z = rootPoint.transform.position.z;
+
+        this.transform.position = tempPos;
+    }
 
     private void StackMovement()
     {
        for(int i = 0; i < width; i++)
         {
-            for(int j = length-1; j >= 1; j--)
+            for(int j = length -1; j > 0; j--)
             {
-                //stack[GetIndex(i, j)].transform.position = Vector3.Lerp(stack[GetIndex(i, j)].transform.position, stack[GetIndex(i, j-1)].transform.position + offset, 0.45f);
-                var tempPos = stack[GetIndex(i, j)].transform.position;
-                var newPosX = stack[GetIndex(i, j - 1)].transform.position.x;
-                var newPosZ = stack[GetIndex(i, j - 1)].transform.position.z;
-                tempPos.x = Mathf.Lerp(tempPos.x, newPosX, 0.45f);
-                tempPos.z = newPosZ + offset.z;
-                stack[GetIndex(i, j)].transform.position = tempPos;
+                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.45f); 
             }
         }
     }
     private int SphereIndex(CanvasSphere sphere)
     {
-        return stack.IndexOf(sphere);
+        return 1;
     }
 
     private int GetIndex(int i, int j)
@@ -91,23 +97,24 @@ public class CanvasStack : MonoBehaviour
 
     public void UpdateWidth(int amount)
     {
-        
         width += amount;
-        Debug.Log(width);
-        for (int i = width -amount; i < width; i++)
+        for (int i = width-amount; i < width; i++)
         {
-            var x = (i - (width / 2)) * stackGap;
+            var x = stack[i-1][0].transform.position.x - stackGap;
+            stack.Add(new List<CanvasSphere>());
             for (int j = 0; j < length; j++)
             {
-                var z = (rootPoint.position.z - j) * stackGap;
+                var z = rootPoint.position.z;
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
                 sphere.gameObject.SetActive(true);
-                var newPos = new Vector3(x, sphere.transform.position.y, 0);
-                sphere.transform.position = rootPoint.transform.position + newPos;
                 sphere.transform.SetParent(this.transform);
-                stack.Add(sphere);
+                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                sphere.transform.position = newPos;
+                stack[i].Add(sphere);
             }
         }
+        //Observer.StackChanged?.Invoke();
+        UpdateRoot();
     }
 
     public void UpdateLength(int amount)
@@ -115,32 +122,30 @@ public class CanvasStack : MonoBehaviour
         length += amount;
         for (int i = 0; i < width; i++)
         {
-            for(int j = length - amount; j < length; j++)
+            var x = (rootPoint.transform.position.x - i) * stackGap;
+            for (int j = length - amount; j < length; j++)
             {
+                var z = (rootPoint.position.z - j) * stackGap;
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
                 sphere.gameObject.SetActive(true);
-                var newPos = new Vector3(0, sphere.transform.position.y, stack[GetIndex(i, j - 1)].transform.position.z);
                 sphere.transform.SetParent(this.transform);
+                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
                 sphere.transform.position = newPos;
-                stack.Add(sphere);
+                stack[i].Add(sphere);
             }
         }
 
+        //Observer.StackChanged?.Invoke();
     }
 
     public void RemoveFromStack(CanvasSphere sphere)
     {
-        var index = SphereIndex(sphere);
-        var value = (index - 1) / width;
-        Debug.Log(value);
-        for (int i = index; i < length; i++)
-        {
-            Debug.Log(i);
-            stack[i].gameObject.SetActive(false);
-            stack[i].transform.SetParent(ObjectPooler.Instance.transform);
-            stack.RemoveAt(index);
-        }
-
-        width--;
+        
     }
+}
+
+[System.Serializable]
+public class ListWrapper<T>
+{
+    public List<T> list;
 }
