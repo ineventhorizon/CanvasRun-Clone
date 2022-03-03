@@ -34,9 +34,19 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
         }
     }
 
-    public void HandleObstacle(CanvasSphere sphere)
+    public void HandleObstacle(ObstacleType type ,int amount)
     {
-        //stack.RemoveFromStack(sphere);
-        
+        switch (type)
+        {
+            case ObstacleType.THIN:
+                stack.UpdateWidth(-1);
+                break;
+            case ObstacleType.POOL:
+                break;
+            case ObstacleType.WALL:
+                break;
+            default:
+                break;
+        }
     }
 }

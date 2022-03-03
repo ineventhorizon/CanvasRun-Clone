@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using NaughtyAttributes;
+using TMPro;
 
 public class CanvasStack : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class CanvasStack : MonoBehaviour
     [SerializeField] private Transform rootPoint;
     //x, y
     [SerializeField] private int width, length;
+    [SerializeField] private TextMeshProUGUI stackText;
     private float stackGap => SettingsManager.CanvasSettings.gap;
     private Vector3 offset;
     private List<Vector3> oldPositions;
@@ -29,7 +31,16 @@ public class CanvasStack : MonoBehaviour
     //private int index;
     private void OnEnable()
     {
-        //Observer.StartGame += FirstLayout;
+        Observer.StackChanged += SetStackText;
+    }
+    private void OnDisable()
+    {
+        Observer.StackChanged -= SetStackText;
+    }
+
+    private void SetStackText()
+    {
+        stackText.SetText((width * length).ToString());
     }
     private void FirstLayout()
     {
@@ -50,8 +61,7 @@ public class CanvasStack : MonoBehaviour
         }
 
         UpdateRoot();
-
-
+        SetStackText();
     }
 
     // Update is called once per frame
@@ -126,7 +136,7 @@ public class CanvasStack : MonoBehaviour
                     sphere.transform.SetParent(this.transform);
                     var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
-                    stack[i].Add(sphere);
+                    stack[i].Insert(0, sphere);
                 }
             }
         }
@@ -162,7 +172,7 @@ public class CanvasStack : MonoBehaviour
                     sphere.transform.SetParent(this.transform);
                     var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
-                    stack[i].Add(sphere);
+                    stack[i].Insert(stack[i].Count, sphere);
                 }
             }
         }

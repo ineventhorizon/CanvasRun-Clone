@@ -5,6 +5,7 @@ using TMPro;
 
 public class Gate : MonoBehaviour
 {
+    //Can change gate's material based on type
     [SerializeField] private GateType gateType;
     [SerializeField] private TextMeshProUGUI gateText;
     [SerializeField] private TextMeshProUGUI gateTypeText;
