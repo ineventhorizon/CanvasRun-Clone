@@ -22,9 +22,11 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
         switch (type)
         {
             case GateType.WIDTH:
+                if (Width + amount <= 0) GameManager.Instance.GameOver();
                 stack.UpdateWidth(amount);
                 break;
-            case GateType.LENGHT:
+            case GateType.LENGTH:
+                if (Length + amount <= 0) GameManager.Instance.GameOver();
                 stack.UpdateLength(amount);
                 break;
             default:
@@ -34,7 +36,7 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
 
     public void HandleObstacle(CanvasSphere sphere)
     {
-        stack.RemoveFromStack(sphere);
+        //stack.RemoveFromStack(sphere);
         
     }
 }

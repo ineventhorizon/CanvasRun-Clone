@@ -1,5 +1,5 @@
 public enum GateType
 {
     WIDTH,
-    LENGHT
+    LENGTH
 }

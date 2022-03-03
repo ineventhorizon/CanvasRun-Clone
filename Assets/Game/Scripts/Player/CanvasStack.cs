@@ -21,10 +21,15 @@ public class CanvasStack : MonoBehaviour
         get { return length; }
         set { length = value; }
     }
+
+    private void Start()
+    {
+        FirstLayout();
+    }
     //private int index;
     private void OnEnable()
     {
-        Observer.StartGame += FirstLayout;
+        //Observer.StartGame += FirstLayout;
     }
     private void FirstLayout()
     {
@@ -52,18 +57,12 @@ public class CanvasStack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateOffSet();
-        //FollowSideMovementRoot();
         StackMovement();
     }
     private void UpdateOffSet()
     {
         offset = Vector3.back * stackGap;
         //offsetFirst = Vector3.back * firstStackGap;
-    }
-    private void FollowSideMovementRoot()
-    {
-        transform.position = rootPoint.position + offset;
     }
 
     private void UpdateRoot()
@@ -77,7 +76,9 @@ public class CanvasStack : MonoBehaviour
 
     private void StackMovement()
     {
-       for(int i = 0; i < width; i++)
+        if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
+        UpdateOffSet();
+        for (int i = 0; i < width; i++)
         {
             for(int j = length -1; j > 0; j--)
             {
@@ -98,54 +99,76 @@ public class CanvasStack : MonoBehaviour
     public void UpdateWidth(int amount)
     {
         width += amount;
-        for (int i = width-amount; i < width; i++)
+        if(amount < 0)
         {
-            var x = stack[i-1][0].transform.position.x - stackGap;
-            stack.Add(new List<CanvasSphere>());
-            for (int j = 0; j < length; j++)
+            for(int i= ((width-amount)-1); i >= width; i--)
             {
-                var z = rootPoint.position.z;
-                var sphere = ObjectPooler.Instance.GetPooledSphere();
-                sphere.gameObject.SetActive(true);
-                sphere.transform.SetParent(this.transform);
-                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
-                sphere.transform.position = newPos;
-                stack[i].Add(sphere);
+                for(int j = 0; j < stack[i].Count; j++)
+                {
+                    stack[i][j].gameObject.SetActive(false);
+                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                }
+                stack[i].Clear();
+                stack.RemoveAt(i);
             }
         }
-        //Observer.StackChanged?.Invoke();
+        else
+        {
+            for (int i = width - amount; i < width; i++)
+            {
+                var x = stack[i - 1][0].transform.position.x - stackGap;
+                stack.Add(new List<CanvasSphere>());
+                for (int j = 0; j < length; j++)
+                {
+                    var z = rootPoint.position.z;
+                    var sphere = ObjectPooler.Instance.GetPooledSphere();
+                    sphere.gameObject.SetActive(true);
+                    sphere.transform.SetParent(this.transform);
+                    var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                    sphere.transform.position = newPos;
+                    stack[i].Add(sphere);
+                }
+            }
+        }
+        Observer.StackChanged?.Invoke();
         UpdateRoot();
     }
 
     public void UpdateLength(int amount)
     {
         length += amount;
-        for (int i = 0; i < width; i++)
+        if(amount < 0)
         {
-            var x = (rootPoint.transform.position.x - i) * stackGap;
-            for (int j = length - amount; j < length; j++)
+            for(int i = 0; i < width; i++)
             {
-                var z = (rootPoint.position.z - j) * stackGap;
-                var sphere = ObjectPooler.Instance.GetPooledSphere();
-                sphere.gameObject.SetActive(true);
-                sphere.transform.SetParent(this.transform);
-                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
-                sphere.transform.position = newPos;
-                stack[i].Add(sphere);
+                for(int j = stack[i].Count - 1; j >= length; j--)
+                {
+                    stack[i][j].gameObject.SetActive(false);
+                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stack[i].RemoveAt(j);
+                }
             }
         }
-
-        //Observer.StackChanged?.Invoke();
-    }
-
-    public void RemoveFromStack(CanvasSphere sphere)
-    {
+        else
+        {
+            for (int i = 0; i < width; i++)
+            {
+                var x = (rootPoint.transform.position.x - i) * stackGap;
+                for (int j = stack[i].Count; j < length; j++)
+                {
+                    var z = (rootPoint.position.z - j) * stackGap;
+                    var sphere = ObjectPooler.Instance.GetPooledSphere();
+                    sphere.gameObject.SetActive(true);
+                    sphere.transform.SetParent(this.transform);
+                    var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                    sphere.transform.position = newPos;
+                    stack[i].Add(sphere);
+                }
+            }
+        }
         
-    }
-}
 
-[System.Serializable]
-public class ListWrapper<T>
-{
-    public List<T> list;
+        Observer.StackChanged?.Invoke();
+    }
+
 }

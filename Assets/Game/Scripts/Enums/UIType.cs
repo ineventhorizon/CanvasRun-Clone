@@ -1,0 +1,7 @@
+public enum UIType
+{
+    STARTSCREEN,
+    INGAMESCREEN,
+    WINSCREEN,
+    FAILSCREEN
+}

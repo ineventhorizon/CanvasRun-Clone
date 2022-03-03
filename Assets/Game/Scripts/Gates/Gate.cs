@@ -29,13 +29,6 @@ public class Gate : MonoBehaviour
         gateTypeText.SetText(gateType.ToString());
         SetText();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void SetText()
     {
         switch (gateType)
@@ -43,7 +36,7 @@ public class Gate : MonoBehaviour
             case GateType.WIDTH:
                 gateText.SetText((amount * StackManager.Instance.Length).ToString());
                 break;
-            case GateType.LENGHT:
+            case GateType.LENGTH:
                 gateText.SetText((amount * StackManager.Instance.Width).ToString());
                 break;
             default:
@@ -53,6 +46,7 @@ public class Gate : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        //var dist = (other.attachedRigidbody.transform.position - other.transform.position);
         if (other.attachedRigidbody.CompareTag("Canvas") && !isTriggered)
         {
             Debug.Log("Entered");

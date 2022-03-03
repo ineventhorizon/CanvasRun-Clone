@@ -298,7 +298,7 @@ GameObject:
   - component: {fileID: 5506031730013304917}
   m_Layer: 0
   m_Name: WidhtGate
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -357,9 +357,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2471464193134912766}
     m_Modifications:
+    - target: {fileID: 614015858255897130, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1164329422917944997, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3580867936763634932, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3785864237396553101, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
       propertyPath: m_Name
       value: GateCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 3785864237396553101, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5281578118507253368, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
       propertyPath: m_fontSize
@@ -456,6 +472,10 @@ PrefabInstance:
     - target: {fileID: 6479029686273916371, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
       propertyPath: m_PresetInfoIsWorld
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6950201230946028029, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae95819c985363046a9b3e4d53b1207f, type: 3}

@@ -20,7 +20,7 @@ public class CanvasMovement : MonoBehaviour
     }
     private void OnDisable()
     {
-        
+        Observer.HandleCanvasLimits -= HandleCanvasLimits;
     }
     void Start()
     {
@@ -58,12 +58,14 @@ public class CanvasMovement : MonoBehaviour
 
     private void HandleForwardMovement()
     {
+        if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
         transform.position += Vector3.forward * (forwardSpeed * Time.deltaTime);
     }
     //Need to change limits with respect to the width of the stack
     //Todo
     private void HandleSideMovement()
     {
+        if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
         var pos = sideMovementRoot.localPosition;
         pos.x += InputManager.Instance.MouseInput.x * sideMovementSensivity;
         pos.x = Mathf.Clamp(pos.x, leftLimitX, rightLimitX);

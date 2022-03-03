@@ -4,8 +4,5 @@ using UnityEngine;
 
 public class CanvasSphere : MonoBehaviour
 {
-    private void OnEnable()
-    {
-        
-    }
+    [SerializeField] public SphereCollider Collider;
 }

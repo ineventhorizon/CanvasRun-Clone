@@ -7,6 +7,7 @@ TagManager:
   - Canvas
   - Obstacle
   - Sphere
+  - Gate
   layers:
   - Default
   - TransparentFX
