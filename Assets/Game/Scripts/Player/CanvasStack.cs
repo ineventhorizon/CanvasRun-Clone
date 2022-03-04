@@ -32,10 +32,17 @@ public class CanvasStack : MonoBehaviour
     private void OnEnable()
     {
         Observer.StackChanged += SetStackText;
+        Observer.MoveStackToPosition += MoveStackToPosition;
     }
     private void OnDisable()
     {
         Observer.StackChanged -= SetStackText;
+        Observer.MoveStackToPosition -= MoveStackToPosition;
+    }
+
+    private void MoveStackToPosition(Transform newPosition)
+    {
+        rootPoint.SetPositionAndRotation(newPosition.position, newPosition.rotation);
     }
 
     private void SetStackText()
@@ -74,6 +81,8 @@ public class CanvasStack : MonoBehaviour
         offset = Vector3.back * stackGap;
         //offsetFirst = Vector3.back * firstStackGap;
     }
+
+
 
     private void UpdateRoot()
     {

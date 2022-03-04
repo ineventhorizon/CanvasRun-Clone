@@ -17,7 +17,7 @@ public class RoadManager : SceneBasedMonoSingleton<RoadManager>
     public int RoadWidth => roadWidth;
     [BoxGroup("Parent")]
     [SerializeField] private Transform roadParent;
-    [SerializeField] private Transform finalRoad;
+    [SerializeField] private Final finalRoad;
     private Vector3 offSet => roadParent.position;
     private void UpdateRoadFormat()
     {
@@ -85,6 +85,7 @@ public class RoadManager : SceneBasedMonoSingleton<RoadManager>
     private void MoveFinal()
     {
         finalRoad.transform.position = (roadParent.forward * roadLength) + roads[roads.Count - 1].transform.position;
+        finalRoad.transform.position += roadParent.forward * 2f;
     }
 #endif
 

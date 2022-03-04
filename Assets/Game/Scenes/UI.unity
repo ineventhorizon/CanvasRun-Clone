@@ -1040,6 +1040,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvasGroup: {fileID: 1046484637}
+  scoreText: {fileID: 1051916281}
+  score: 10
 --- !u!1 &1049999861
 GameObject:
   m_ObjectHideFlags: 0
@@ -1083,15 +1085,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30bf4d32bfd51f04c9fc836a701ea31e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uis:
-  - Type: 0
-    Ui: {fileID: 158948549}
-  - Type: 1
-    Ui: {fileID: 1046484638}
-  - Type: 2
-    Ui: {fileID: 2051577445}
-  - Type: 3
-    Ui: {fileID: 1680243956}
+  InGameScreen: {fileID: 1046484638}
+  StartScreen: {fileID: 158948549}
+  FailScreen: {fileID: 1680243956}
+  WinScreen: {fileID: 2051577445}
 --- !u!1 &1051916279
 GameObject:
   m_ObjectHideFlags: 0

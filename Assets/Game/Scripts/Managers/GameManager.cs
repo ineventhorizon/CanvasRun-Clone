@@ -6,14 +6,10 @@ using NaughtyAttributes;
 public class GameManager : MonoSingleton<GameManager>
 {
     [SerializeField, ReadOnly] public GameState CurrentGameState = GameState.MENU;
-    private void Start()
-    {
-        //StartGame();
-    }
     public void StartGame()
     {
-        UIManager.Instance.DisableUI(UIType.STARTSCREEN);
-        UIManager.Instance.EnableUI(UIType.INGAMESCREEN);
+        UIManager.Instance.StartScreen.DisablePanel();
+        UIManager.Instance.InGameScreen.EnablePanel();
         CurrentGameState = GameState.GAMEPLAY;
         Observer.StartGame?.Invoke();
         Observer.HandleCanvasLimits?.Invoke();
@@ -21,16 +17,32 @@ public class GameManager : MonoSingleton<GameManager>
     public void GameOver()
     {
         CurrentGameState = GameState.MENU;
-        UIManager.Instance.DisableUI(UIType.INGAMESCREEN);
-        UIManager.Instance.EnableUI(UIType.FAILSCREEN);
+        UIManager.Instance.InGameScreen.DisablePanel();
+        UIManager.Instance.FailScreen.EnablePanel();
         Debug.Log("Game Over");
 
     }
     public void RestartGame()
     {
         CurrentGameState = GameState.MENU;
-        UIManager.Instance.DisableUI(UIType.FAILSCREEN);
-        UIManager.Instance.EnableUI(UIType.STARTSCREEN);
+        UIManager.Instance.FailScreen.DisablePanel();
+        UIManager.Instance.StartScreen.EnablePanel();
         MySceneManager.Instance.RestartActiveScene();
+    }
+
+    public void FinalGame(FinalType type ,Transform newPosition)
+    {
+        CurrentGameState = GameState.FINAL;
+        CameraManager.Instance.SwitchCam("FinalCam");
+        switch (type)
+        {
+            case FinalType.CASINO:
+                Observer.MoveStackToPosition(newPosition);
+                break;
+            case FinalType.FLAT:
+                break;
+            default:
+                break;
+        }
     }
 }

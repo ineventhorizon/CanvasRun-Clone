@@ -48,10 +48,11 @@ public class Gate : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //var dist = (other.attachedRigidbody.transform.position - other.transform.position);
-        if (other.attachedRigidbody.CompareTag("Canvas") && !isTriggered)
+        if (other.CompareTag("Sphere") && !isTriggered)
         {
             Debug.Log("Entered");
             StackManager.Instance.HandleGate(gateType, amount);
+            UIManager.Instance.InGameScreen.SetScore(amount * 10);
             isTriggered = true;
             
         }

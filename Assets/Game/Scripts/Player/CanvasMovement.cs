@@ -31,8 +31,30 @@ public class CanvasMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HandleForwardMovement();
-        HandleSideMovement();
+        HandleMovement();
+       //HandleForwardMovement();
+       //HandleSideMovement();
+    }
+
+    private void HandleMovement()
+    {
+        switch (GameManager.Instance.CurrentGameState)
+        {
+            case GameState.GAMEPLAY:
+                HandleForwardMovement();
+                HandleSideMovement();
+                break;
+            case GameState.MENU:
+                break;
+            case GameState.PAUSED:
+                break;
+            case GameState.FINAL:
+                HandleFinalMovement();
+                break;
+            default:
+                break;
+        }
+
     }
 
     private void HandleCanvasLimits()
@@ -53,7 +75,16 @@ public class CanvasMovement : MonoBehaviour
         rightLimit.transform.localPosition = newLimitRight;
 
         //sideMovementRoot.transform.localPosition = new Vector3(stack.Width / 2, 0, 0);
+    }
 
+    private void HandleFinalMovement()
+    {
+        if (GameManager.Instance.CurrentGameState != GameState.FINAL) return;
+        transform.position += Vector3.down * (1.5f * Time.deltaTime);
+        var pos = sideMovementRoot.localPosition;
+        pos.x += InputManager.Instance.MouseInput.x * sideMovementSensivity;
+        pos.x = Mathf.Clamp(pos.x, leftLimitX, rightLimitX);
+        sideMovementRoot.localPosition = Vector3.Lerp(sideMovementRoot.localPosition, pos, Time.deltaTime * 30f);
     }
 
     private void HandleForwardMovement()
@@ -61,8 +92,6 @@ public class CanvasMovement : MonoBehaviour
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
         transform.position += Vector3.forward * (forwardSpeed * Time.deltaTime);
     }
-    //Need to change limits with respect to the width of the stack
-    //Todo
     private void HandleSideMovement()
     {
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
