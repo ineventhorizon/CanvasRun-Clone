@@ -57,6 +57,7 @@ public class CanvasMovement : MonoBehaviour
 
     }
 
+    //TODO
     private void HandleCanvasLimits()
     {
         var newLimitLeft = leftLimit.transform.localPosition;

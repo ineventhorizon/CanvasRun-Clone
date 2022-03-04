@@ -103,9 +103,10 @@ public class CanvasStack : MonoBehaviour
 
         for (int i = 0; i < stack.Count; i++)
         {
-            for(int j = stack[i].Count-1; j > 0; j--)
+            for (int j = stack[i].Count-1; j > 0; j--)
             {
-                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.3f);
+                
+                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.45f);
             }
         }
 
@@ -117,6 +118,7 @@ public class CanvasStack : MonoBehaviour
                 stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i + 1][j].transform.position + Vector3.right * stackGap, 0.1f);
             }
         }
+        //UpdateRoot();
 
 
     }
@@ -167,6 +169,7 @@ public class CanvasStack : MonoBehaviour
             }
         }
         Observer.StackChanged?.Invoke();
+        //Observer.HandleCanvasLimits?.Invoke();
         UpdateRoot();
     }
 
@@ -238,6 +241,7 @@ public class CanvasStack : MonoBehaviour
        
     }
 
+
     private IEnumerator GatherAroundRoutine()
     {
         var timer = 0.7f;
@@ -245,10 +249,9 @@ public class CanvasStack : MonoBehaviour
         while (timer > 0)
         {
             timer -= Time.deltaTime;
-            
             yield return null;
         }
-
+        //Observer.HandleCanvasLimits?.Invoke();
         obstacleContact = false;
 
     }
