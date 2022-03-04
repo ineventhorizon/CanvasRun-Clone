@@ -11,10 +11,11 @@ public class ThinObstacle : MonoBehaviour
         var collidePoint = this.transform.position - other.attachedRigidbody.transform.position;
         if (other.CompareTag("Sphere") && !isTriggered && !(collidePoint.z <= 0))
         {
+            var sphere = other.GetComponent<CanvasSphere>();
             Debug.Log(collidePoint);
             Debug.Log(other.name);
             isTriggered = true;
-            StackManager.Instance.HandleObstacle(type, -1);
+            StackManager.Instance.HandleObstacle(type, sphere);
         }
     }
 }

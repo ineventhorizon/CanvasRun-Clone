@@ -59,12 +59,12 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
         }
     }
 
-    public void HandleObstacle(ObstacleType type ,int amount)
+    public void HandleObstacle(ObstacleType type ,CanvasSphere sphere)
     {
         switch (type)
         {
             case ObstacleType.THIN:
-                stack.UpdateWidth(-1);
+                stack.RemoveLine(sphere);
                 break;
             case ObstacleType.POOL:
                 break;

@@ -11,6 +11,7 @@ public class CanvasStack : MonoBehaviour
     //x, y
     [SerializeField] private int width, length;
     [SerializeField] private TextMeshProUGUI stackText;
+    private bool obstacleContact = false;
     private float stackGap => SettingsManager.CanvasSettings.gap;
     private int stackCount = 0;
     private Vector3 offset;
@@ -99,13 +100,25 @@ public class CanvasStack : MonoBehaviour
     {
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
         UpdateOffSet();
-        for (int i = 0; i < width; i++)
+
+        for (int i = 0; i < stack.Count; i++)
         {
-            for(int j = length -1; j > 0; j--)
+            for(int j = stack[i].Count-1; j > 0; j--)
             {
-                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.45f); 
+                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.3f);
             }
         }
+
+        if (obstacleContact) return;
+        for (int j = 0; j < length; j++)
+        {
+            for (int i = 0; i < stack.Count - 1; i++)
+            {
+                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i + 1][j].transform.position + Vector3.right * stackGap, 0.1f);
+            }
+        }
+
+
     }
     private int SphereIndex(CanvasSphere sphere)
     {
@@ -194,6 +207,50 @@ public class CanvasStack : MonoBehaviour
         
 
         Observer.StackChanged?.Invoke();
+    }
+
+    public void RemoveLine(CanvasSphere sphere)
+    {
+        int index = 0;
+        for(int i = 0; i < stack.Count; i++)
+        {
+            var contains = stack[i].Contains(sphere);
+            if (contains)
+            {
+                index = i;
+            }
+        }
+
+        for(int i = stack[index].Count-1; i >= 0 ; i--)
+        {
+            stack[index][i].gameObject.SetActive(false);
+            stack[index][i].transform.SetParent(ObjectPooler.Instance.transform);
+            stackCount--;
+        }
+
+        width--;
+        stack[index].Clear();
+        stack.RemoveAt(index);
+
+        SetStackText();
+        StartCoroutine(GatherAroundRoutine());
+        //int len = stack[index].Count;
+       
+    }
+
+    private IEnumerator GatherAroundRoutine()
+    {
+        var timer = 0.7f;
+        obstacleContact = true;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            
+            yield return null;
+        }
+
+        obstacleContact = false;
+
     }
 
 }
