@@ -6,6 +6,7 @@ using NaughtyAttributes;
 public class GameManager : MonoSingleton<GameManager>
 {
     [SerializeField, ReadOnly] public GameState CurrentGameState = GameState.MENU;
+    public bool IsGameEnded = false;
     public void StartGame()
     {
         UIManager.Instance.StartScreen.DisablePanel();
@@ -30,6 +31,16 @@ public class GameManager : MonoSingleton<GameManager>
         MySceneManager.Instance.RestartActiveScene();
     }
 
+    [Button]
+    public void NextLevel()
+    {
+        CurrentGameState = GameState.MENU;
+        UIManager.Instance.InGameScreen.DisablePanel();
+        UIManager.Instance.WinScreen.DisablePanel();
+        UIManager.Instance.StartScreen.EnablePanel();
+        MySceneManager.Instance.LoadNextLevel();
+    }
+
     public void FinalGame(FinalType type ,Transform newPosition)
     {
         CurrentGameState = GameState.FINAL;
@@ -37,12 +48,19 @@ public class GameManager : MonoSingleton<GameManager>
         switch (type)
         {
             case FinalType.CASINO:
-                Observer.MoveStackToPosition(newPosition);
+                StartCoroutine(FinalRoutine(StartCoroutine(StackManager.Instance.CasinoFinalRoutine(newPosition))));
+
                 break;
             case FinalType.FLAT:
                 break;
             default:
                 break;
         }
+    }
+
+    private IEnumerator FinalRoutine(Coroutine finalRoutine)
+    {
+        yield return finalRoutine;
+        UIManager.Instance.WinScreen.EnablePanel();
     }
 }

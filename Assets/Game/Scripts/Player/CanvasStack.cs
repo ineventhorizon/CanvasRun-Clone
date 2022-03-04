@@ -12,8 +12,14 @@ public class CanvasStack : MonoBehaviour
     [SerializeField] private int width, length;
     [SerializeField] private TextMeshProUGUI stackText;
     private float stackGap => SettingsManager.CanvasSettings.gap;
+    private int stackCount = 0;
     private Vector3 offset;
     private List<Vector3> oldPositions;
+    public int StackCount
+    {
+        get { return stackCount; }
+        set { stackCount = value; }
+    }
     public int Width {
         get { return width; }
         set { width = value; }
@@ -40,14 +46,19 @@ public class CanvasStack : MonoBehaviour
         Observer.MoveStackToPosition -= MoveStackToPosition;
     }
 
-    private void MoveStackToPosition(Transform newPosition)
+    // Update is called once per frame
+    void Update()
+    {
+        StackMovement();
+    }
+
+    public void MoveStackToPosition(Transform newPosition)
     {
         rootPoint.SetPositionAndRotation(newPosition.position, newPosition.rotation);
     }
-
     private void SetStackText()
     {
-        stackText.SetText((width * length).ToString());
+        stackText.SetText((stackCount).ToString());
     }
     private void FirstLayout()
     {
@@ -61,29 +72,21 @@ public class CanvasStack : MonoBehaviour
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
                 sphere.gameObject.SetActive(true);
                 sphere.transform.SetParent(this.transform);
-                var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                var newPos = new Vector3(x, 0.25f, z);
                 sphere.transform.position = newPos;
                 stack[i].Add(sphere);
+                stackCount++;
             }
         }
 
         UpdateRoot();
         SetStackText();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        StackMovement();
-    }
     private void UpdateOffSet()
     {
         offset = Vector3.back * stackGap;
         //offsetFirst = Vector3.back * firstStackGap;
     }
-
-
-
     private void UpdateRoot()
     {
         var tempPos = this.transform.position;
@@ -92,7 +95,6 @@ public class CanvasStack : MonoBehaviour
 
         this.transform.position = tempPos;
     }
-
     private void StackMovement()
     {
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
@@ -126,6 +128,7 @@ public class CanvasStack : MonoBehaviour
                 {
                     stack[i][j].gameObject.SetActive(false);
                     stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stackCount--;
                 }
                 stack[i].Clear();
                 stack.RemoveAt(i);
@@ -146,6 +149,7 @@ public class CanvasStack : MonoBehaviour
                     var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
                     stack[i].Insert(0, sphere);
+                    stackCount++;
                 }
             }
         }
@@ -165,6 +169,7 @@ public class CanvasStack : MonoBehaviour
                     stack[i][j].gameObject.SetActive(false);
                     stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
                     stack[i].RemoveAt(j);
+                    stackCount--;
                 }
             }
         }
@@ -182,6 +187,7 @@ public class CanvasStack : MonoBehaviour
                     var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
                     stack[i].Insert(stack[i].Count, sphere);
+                    stackCount++;
                 }
             }
         }

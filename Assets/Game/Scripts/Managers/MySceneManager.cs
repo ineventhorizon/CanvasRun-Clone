@@ -24,6 +24,7 @@ public class MySceneManager : MonoSingleton<MySceneManager>
 
         UnloadCurrentLevel();
         var sceneToLoad = LoadLevel(currentLevelIndex);
+        ObjectPooler.Instance.SetActiveSpheres();
         StartCoroutine(WaitForAllScenes(sceneToLoad));
     }
 
@@ -38,6 +39,7 @@ public class MySceneManager : MonoSingleton<MySceneManager>
         UnloadCurrentLevel();
         currentLevelIndex++;
         var sceneToLoad = LoadLevel(currentLevelIndex);
+        ObjectPooler.Instance.SetActiveSpheres();
         StartCoroutine(WaitForAllScenes(sceneToLoad));
     }
 

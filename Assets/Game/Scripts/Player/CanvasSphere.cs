@@ -7,11 +7,10 @@ public class CanvasSphere : MonoBehaviour
     [SerializeField] public SphereCollider Collider;
     [SerializeField] public Rigidbody RigidBody;
     public bool IsTriggered = false;
-
-    private void OnDisable()
+    public IEnumerator LifeTimeRoutine()
     {
-        this.RigidBody.isKinematic = true;
-        this.Collider.isTrigger = true;
-        IsTriggered = false;
+        yield return new WaitForSeconds(10);
+        this.IsTriggered = true;
+        StackManager.Instance.DecreaseStackCount();
     }
 }

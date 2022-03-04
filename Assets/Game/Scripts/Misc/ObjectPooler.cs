@@ -35,4 +35,20 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
         pooledSpheres.Add(obj);
         return obj;
     }
+
+    public void SetActiveSpheres()
+    {
+        for (int i = 0; i < pooledSpheres.Count; i++)
+        {
+            if (pooledSpheres[i].gameObject.activeInHierarchy)
+            {
+                pooledSpheres[i].gameObject.transform.SetParent(this.transform);
+                pooledSpheres[i].gameObject.SetActive(false);
+                pooledSpheres[i].RigidBody.isKinematic = true;
+                pooledSpheres[i].Collider.isTrigger = true;
+                pooledSpheres[i].IsTriggered = false;
+                Debug.Log("Disabled");
+            }
+        }
+    }
 }

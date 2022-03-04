@@ -5,13 +5,25 @@ using TMPro;
 
 public class Gate : MonoBehaviour
 {
+    [SerializeField] private GateCouple gateCouple;
     //Can change gate's material based on type
     [SerializeField] private GateType gateType;
     [SerializeField] private TextMeshProUGUI gateText;
     [SerializeField] private TextMeshProUGUI gateTypeText;
     //True if gate is positive, if it is false gate is negative
     [SerializeField] private bool status;
-    private bool isTriggered = false;
+    private bool isTriggered
+    {
+        get
+        {
+            return gateCouple.IsTriggered;
+        }
+        set
+        {
+            gateCouple.IsTriggered = value;
+        }
+    }
+
     //Amount of rows/columns to add to the canvas
     private int amount;
     // Start is called before the first frame update

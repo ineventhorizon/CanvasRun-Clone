@@ -13,8 +13,10 @@ public class Multiplier : MonoBehaviour
             if (sphere.IsTriggered) return;
             sphere.IsTriggered = true;
             UIManager.Instance.InGameScreen.SetScore(multiplier*10);
-            sphere.transform.SetParent(ObjectPooler.Instance.transform);
-            sphere.gameObject.SetActive(false);
+            StackManager.Instance.DecreaseStackCount();
+            //StartCoroutine(sphere.LifeTimeRoutine());
+            //sphere.transform.SetParent(ObjectPooler.Instance.transform);
+            //sphere.gameObject.SetActive(false);
         }
     }
 }

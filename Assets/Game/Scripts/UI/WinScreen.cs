@@ -4,5 +4,8 @@ using UnityEngine;
 
 public class WinScreen : UIBase
 {
-
+    public void NextLevel()
+    {
+        GameManager.Instance.NextLevel();
+    }
 }
