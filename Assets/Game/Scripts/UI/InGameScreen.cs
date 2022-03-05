@@ -24,7 +24,7 @@ public class InGameScreen : UIBase
     public override void DisablePanel()
     {
         base.DisablePanel();
-        score = 0;
+        SetScore(-score);
     }
 
 

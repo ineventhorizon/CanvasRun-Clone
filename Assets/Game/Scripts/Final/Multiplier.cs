@@ -15,8 +15,7 @@ public class Multiplier : MonoBehaviour
             UIManager.Instance.InGameScreen.SetScore(multiplier*10);
             StackManager.Instance.DecreaseStackCount();
             //StartCoroutine(sphere.LifeTimeRoutine());
-            //sphere.transform.SetParent(ObjectPooler.Instance.transform);
-            //sphere.gameObject.SetActive(false);
+            sphere.Default();
         }
     }
 }

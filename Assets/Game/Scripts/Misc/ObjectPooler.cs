@@ -28,6 +28,7 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
         {
             if (!pooledSpheres[i].gameObject.activeInHierarchy)
             {
+                pooledSpheres[i].Default();
                 return pooledSpheres[i];
             }
         }

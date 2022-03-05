@@ -2712,8 +2712,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rootPoint: {fileID: 661234}
-  width: 5
-  length: 15
+  width: 3
+  length: 12
   stackText: {fileID: 1249020092}
 --- !u!54 &1357455400
 Rigidbody:

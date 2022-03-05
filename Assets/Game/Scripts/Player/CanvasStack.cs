@@ -51,11 +51,13 @@ public class CanvasStack : MonoBehaviour
     void Update()
     {
         StackMovement();
+        FollowRoot();
     }
 
     public void MoveStackToPosition(Transform newPosition)
     {
-        rootPoint.SetPositionAndRotation(newPosition.position, newPosition.rotation);
+        transform.SetParent(rootPoint);
+        transform.SetPositionAndRotation(newPosition.position, newPosition.rotation);
     }
     private void SetStackText()
     {
@@ -65,22 +67,22 @@ public class CanvasStack : MonoBehaviour
     {
         for(int i = 0; i < width; i++)
         {
-            var x = (rootPoint.transform.position.x - i)*stackGap;
+            var x = (transform.position.x - i)*stackGap;
             stack.Add(new List<CanvasSphere>());
             for(int j = 0; j < length; j++)
             {
-                var z = (rootPoint.position.z - j) * stackGap;
+                var z = (transform.position.z - j) * stackGap;
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
                 sphere.gameObject.SetActive(true);
                 sphere.transform.SetParent(this.transform);
-                var newPos = new Vector3(x, 0.25f, z);
+                var newPos = new Vector3(x, stackGap/2, z);
                 sphere.transform.position = newPos;
                 stack[i].Add(sphere);
                 stackCount++;
             }
         }
 
-        UpdateRoot();
+        //UpdateRoot();
         SetStackText();
     }
     private void UpdateOffSet()
@@ -91,10 +93,29 @@ public class CanvasStack : MonoBehaviour
     private void UpdateRoot()
     {
         var tempPos = this.transform.position;
-        tempPos.x = rootPoint.transform.position.x + (width / 2 * (stackGap));
+        tempPos.x = rootPoint.transform.position.x + ((Mathf.Floor(width / 2)) * (stackGap));
         tempPos.z = rootPoint.transform.position.z;
 
         this.transform.position = tempPos;
+    }
+
+    private void FollowRoot()
+    {
+        if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
+        stack[Mathf.FloorToInt((width / 2))][0].transform.position = Vector3.Lerp(stack[Mathf.FloorToInt((width / 2))][0].transform.position, rootPoint.position, 0.45f);
+        stack[Mathf.FloorToInt((width / 2))][0].transform.rotation = rootPoint.rotation;
+        for (int i = 0; i < stack.Count; i++)
+        {
+            if (i == Mathf.FloorToInt((width / 2))) continue;
+            stack[i][0].transform.rotation = rootPoint.rotation;
+            stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[Mathf.FloorToInt((width / 2))][0].transform.position + Vector3.right * stackGap*(i- Mathf.FloorToInt((width / 2))), 0.45f);
+        }
+    }
+
+    private int Function(int i)
+    {
+        if (Mathf.FloorToInt((width / 2)) == i) return 0;
+        return Mathf.FloorToInt(((width - Mathf.FloorToInt((width / 2)) * i) / 2));
     }
     private void StackMovement()
     {
@@ -111,16 +132,14 @@ public class CanvasStack : MonoBehaviour
         }
 
         if (obstacleContact) return;
-        for (int j = 0; j < length; j++)
-        {
-            for (int i = 0; i < stack.Count - 1; i++)
-            {
-                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i + 1][j].transform.position + Vector3.right * stackGap, 0.1f);
-            }
-        }
+       // for (int j = 0; j < length; j++)
+       // {
+       //     for (int i = 0; i < stack.Count - 1; i++)
+       //     {
+       //         stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i + 1][j].transform.position + Vector3.right * stackGap, 0.1f);
+       //     }
+       // }
         //UpdateRoot();
-
-
     }
     private int SphereIndex(CanvasSphere sphere)
     {
@@ -153,7 +172,7 @@ public class CanvasStack : MonoBehaviour
         {
             for (int i = width - amount; i < width; i++)
             {
-                var x = stack[i - 1][0].transform.position.x - stackGap;
+                //var x = stack[i - 1][0].transform.position.x - stackGap;
                 stack.Add(new List<CanvasSphere>());
                 for (int j = 0; j < length; j++)
                 {
@@ -161,7 +180,7 @@ public class CanvasStack : MonoBehaviour
                     var sphere = ObjectPooler.Instance.GetPooledSphere();
                     sphere.gameObject.SetActive(true);
                     sphere.transform.SetParent(this.transform);
-                    var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
+                    var newPos = new Vector3(0, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
                     stack[i].Insert(0, sphere);
                     stackCount++;
@@ -170,7 +189,7 @@ public class CanvasStack : MonoBehaviour
         }
         Observer.StackChanged?.Invoke();
         //Observer.HandleCanvasLimits?.Invoke();
-        UpdateRoot();
+        //UpdateRoot();
     }
 
     public void UpdateLength(int amount)

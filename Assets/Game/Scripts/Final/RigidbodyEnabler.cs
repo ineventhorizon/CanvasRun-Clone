@@ -12,6 +12,7 @@ public class RigidbodyEnabler : MonoBehaviour
             sphere.RigidBody.isKinematic = false;
             sphere.Collider.isTrigger = false;
             sphere.transform.SetParent(null);
+
         }
     }
 }
