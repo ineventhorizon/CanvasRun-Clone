@@ -59,10 +59,16 @@ public class MySceneManager : MonoSingleton<MySceneManager>
     }
     private void FirstLoad()
     {
+        for(int i = 1;i < (int)SceneIndexes.LEVELS; i++)
+        {
+            scenesLoading.Add(SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive));
+        }
         var gameScene = SceneManager.LoadSceneAsync(currentLevelIndex, LoadSceneMode.Additive);
-        var uiScene = SceneManager.LoadSceneAsync((int)SceneIndexes.UI, LoadSceneMode.Additive);
+        //var uiScene = SceneManager.LoadSceneAsync((int)SceneIndexes.UI, LoadSceneMode.Additive);
+        //var envScene = SceneManager.LoadSceneAsync((int)SceneIndexes.ENVIRONMENT, LoadSceneMode.Additive);
         scenesLoading.Add(gameScene);
-        scenesLoading.Add(uiScene);
+        //scenesLoading.Add(uiScene);
+        //scenesLoading.Add(envScene);
         StartCoroutine(WaitForAllScenes(gameScene));
     }
 

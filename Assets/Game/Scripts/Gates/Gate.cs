@@ -65,8 +65,7 @@ public class Gate : MonoBehaviour
             Debug.Log("Entered");
             StackManager.Instance.HandleGate(gateType, amount);
             UIManager.Instance.InGameScreen.SetScore(amount * 10);
-            isTriggered = true;
-            
+            isTriggered = true;         
         }
     }
 }

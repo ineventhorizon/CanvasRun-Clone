@@ -7,5 +7,7 @@ public class CanvasSettings : ScriptableObject
 {
     public float forwardSpeed;
     public float sideMovementSensivity;
+    public float sideLerpValue;
+    public float forwardLerpValue;
     public float gap;
 }

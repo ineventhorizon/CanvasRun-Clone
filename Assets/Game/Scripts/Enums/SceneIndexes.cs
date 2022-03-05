@@ -2,5 +2,6 @@ public enum SceneIndexes
 {
     MAINSCENE = 0,
     UI = 1,
-    LEVELS = 2
+    ENVIRONMENT = 2,
+    LEVELS = 3
 }

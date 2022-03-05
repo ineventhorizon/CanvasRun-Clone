@@ -13,6 +13,8 @@ public class CanvasStack : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stackText;
     private bool obstacleContact = false;
     private float stackGap => SettingsManager.CanvasSettings.gap;
+    private float sideLerpValue => SettingsManager.CanvasSettings.sideLerpValue;
+    private float forwardLerpValue => SettingsManager.CanvasSettings.forwardLerpValue;
     private int stackCount = 0;
     private Vector3 offset;
     private List<Vector3> oldPositions;
@@ -30,12 +32,10 @@ public class CanvasStack : MonoBehaviour
         get { return length; }
         set { length = value; }
     }
-
     private void Start()
     {
         FirstLayout();
     }
-    //private int index;
     private void OnEnable()
     {
         Observer.StackChanged += SetStackText;
@@ -46,14 +46,12 @@ public class CanvasStack : MonoBehaviour
         Observer.StackChanged -= SetStackText;
         Observer.MoveStackToPosition -= MoveStackToPosition;
     }
-
     // Update is called once per frame
     void Update()
     {
         StackMovement();
         FollowRoot();
     }
-
     public void MoveStackToPosition(Transform newPosition)
     {
         transform.SetParent(rootPoint);
@@ -81,8 +79,6 @@ public class CanvasStack : MonoBehaviour
                 stackCount++;
             }
         }
-
-        //UpdateRoot();
         SetStackText();
     }
     private void UpdateOffSet()
@@ -90,32 +86,19 @@ public class CanvasStack : MonoBehaviour
         offset = Vector3.back * stackGap;
         //offsetFirst = Vector3.back * firstStackGap;
     }
-    private void UpdateRoot()
-    {
-        var tempPos = this.transform.position;
-        tempPos.x = rootPoint.transform.position.x + ((Mathf.Floor(width / 2)) * (stackGap));
-        tempPos.z = rootPoint.transform.position.z;
-
-        this.transform.position = tempPos;
-    }
-
     private void FollowRoot()
     {
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
-        stack[Mathf.FloorToInt((width / 2))][0].transform.position = Vector3.Lerp(stack[Mathf.FloorToInt((width / 2))][0].transform.position, rootPoint.position, 0.45f);
-        stack[Mathf.FloorToInt((width / 2))][0].transform.rotation = rootPoint.rotation;
+        stack[Mathf.FloorToInt((width / 2))][0].transform.position = Vector3.Lerp(stack[Mathf.FloorToInt((width / 2))][0].transform.position, rootPoint.position, sideLerpValue);
+        stack[Mathf.FloorToInt((width / 2))][0].transform.localRotation = rootPoint.rotation;
         for (int i = 0; i < stack.Count; i++)
         {
             if (i == Mathf.FloorToInt((width / 2))) continue;
             stack[i][0].transform.rotation = rootPoint.rotation;
-            stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[Mathf.FloorToInt((width / 2))][0].transform.position + Vector3.right * stackGap*(i- Mathf.FloorToInt((width / 2))), 0.45f);
+            var rotationOffset = Mathf.Sin(rootPoint.rotation.y)*(i-(Mathf.FloorToInt(width/2)));
+            stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[Mathf.FloorToInt((width / 2))][0].transform.position + Vector3.right * stackGap*(i- Mathf.FloorToInt((width / 2))), sideLerpValue);
+            stack[i][0].transform.position -= rotationOffset*Vector3.forward;
         }
-    }
-
-    private int Function(int i)
-    {
-        if (Mathf.FloorToInt((width / 2)) == i) return 0;
-        return Mathf.FloorToInt(((width - Mathf.FloorToInt((width / 2)) * i) / 2));
     }
     private void StackMovement()
     {
@@ -127,30 +110,10 @@ public class CanvasStack : MonoBehaviour
             for (int j = stack[i].Count-1; j > 0; j--)
             {
                 
-                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, 0.45f);
+                stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, forwardLerpValue);
             }
         }
-
-        if (obstacleContact) return;
-       // for (int j = 0; j < length; j++)
-       // {
-       //     for (int i = 0; i < stack.Count - 1; i++)
-       //     {
-       //         stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i + 1][j].transform.position + Vector3.right * stackGap, 0.1f);
-       //     }
-       // }
-        //UpdateRoot();
     }
-    private int SphereIndex(CanvasSphere sphere)
-    {
-        return 1;
-    }
-
-    private int GetIndex(int i, int j)
-    {
-        return i*length + j;
-    }
-
     public void UpdateWidth(int amount)
     {
         width += amount;
@@ -189,9 +152,7 @@ public class CanvasStack : MonoBehaviour
         }
         Observer.StackChanged?.Invoke();
         //Observer.HandleCanvasLimits?.Invoke();
-        //UpdateRoot();
     }
-
     public void UpdateLength(int amount)
     {
         length += amount;
@@ -226,11 +187,8 @@ public class CanvasStack : MonoBehaviour
                 }
             }
         }
-        
-
         Observer.StackChanged?.Invoke();
     }
-
     public void RemoveLine(CanvasSphere sphere)
     {
         int index = 0;
@@ -242,25 +200,18 @@ public class CanvasStack : MonoBehaviour
                 index = i;
             }
         }
-
         for(int i = stack[index].Count-1; i >= 0 ; i--)
         {
             stack[index][i].gameObject.SetActive(false);
             stack[index][i].transform.SetParent(ObjectPooler.Instance.transform);
             stackCount--;
         }
-
         width--;
         stack[index].Clear();
         stack.RemoveAt(index);
-
         SetStackText();
         StartCoroutine(GatherAroundRoutine());
-        //int len = stack[index].Count;
-       
     }
-
-
     private IEnumerator GatherAroundRoutine()
     {
         var timer = 0.7f;
