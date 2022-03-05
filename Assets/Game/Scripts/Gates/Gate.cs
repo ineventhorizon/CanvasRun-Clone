@@ -59,7 +59,6 @@ public class Gate : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //var dist = (other.attachedRigidbody.transform.position - other.transform.position);
         if (other.CompareTag("Sphere") && !isTriggered)
         {
             Debug.Log("Entered");

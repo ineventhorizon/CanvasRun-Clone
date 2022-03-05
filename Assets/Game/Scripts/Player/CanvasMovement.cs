@@ -106,7 +106,7 @@ public class CanvasMovement : MonoBehaviour
         //Rotation of side movement root
         var moveDirection = Vector3.forward + InputManager.Instance.RawMouseInput.x * Vector3.right;
         var targetRotation = pos.x == leftLimitX || pos.x == rightLimitX ? Quaternion.LookRotation(Vector3.forward, Vector3.up) : Quaternion.LookRotation(moveDirection.normalized, Vector3.up);
-        sideMovementRoot.localRotation = Quaternion.Lerp(sideMovementRoot.localRotation, targetRotation, Time.deltaTime * 18f);
+        sideMovementRoot.localRotation = Quaternion.Lerp(sideMovementRoot.localRotation, targetRotation, Time.deltaTime * 30f);
     }
 
 }

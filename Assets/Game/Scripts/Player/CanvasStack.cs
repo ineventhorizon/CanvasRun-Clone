@@ -11,10 +11,10 @@ public class CanvasStack : MonoBehaviour
     //x, y
     [SerializeField] private int width, length;
     [SerializeField] private TextMeshProUGUI stackText;
-    private bool obstacleContact = false;
     private float stackGap => SettingsManager.CanvasSettings.gap;
     private float sideLerpValue => SettingsManager.CanvasSettings.sideLerpValue;
     private float forwardLerpValue => SettingsManager.CanvasSettings.forwardLerpValue;
+    private int middleIndex => Mathf.FloorToInt((width / 2));
     private int stackCount = 0;
     private Vector3 offset;
     private List<Vector3> oldPositions;
@@ -89,15 +89,16 @@ public class CanvasStack : MonoBehaviour
     private void FollowRoot()
     {
         if (GameManager.Instance.CurrentGameState != GameState.GAMEPLAY) return;
-        stack[Mathf.FloorToInt((width / 2))][0].transform.position = Vector3.Lerp(stack[Mathf.FloorToInt((width / 2))][0].transform.position, rootPoint.position, sideLerpValue);
-        stack[Mathf.FloorToInt((width / 2))][0].transform.localRotation = rootPoint.rotation;
+        stack[middleIndex][0].transform.position = Vector3.Lerp(stack[middleIndex][0].transform.position, rootPoint.position, sideLerpValue);
         for (int i = 0; i < stack.Count; i++)
         {
+            stack[i][0].transform.rotation = Quaternion.Lerp(stack[i][0].transform.localRotation, rootPoint.rotation, sideLerpValue);
             if (i == Mathf.FloorToInt((width / 2))) continue;
             stack[i][0].transform.rotation = rootPoint.rotation;
-            var rotationOffset = Mathf.Sin(rootPoint.rotation.y)*(i-(Mathf.FloorToInt(width/2)));
-            stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[Mathf.FloorToInt((width / 2))][0].transform.position + Vector3.right * stackGap*(i- Mathf.FloorToInt((width / 2))), sideLerpValue);
-            stack[i][0].transform.position -= rotationOffset*Vector3.forward;
+            var rotationOffset = Mathf.Sin(rootPoint.rotation.y)*(i- middleIndex) *stackGap;
+            stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[middleIndex][0].transform.position + Vector3.left * stackGap*(i- middleIndex), sideLerpValue);
+            stack[i][0].transform.position -= rotationOffset*Vector3.back;
+            
         }
     }
     private void StackMovement()
@@ -109,17 +110,17 @@ public class CanvasStack : MonoBehaviour
         {
             for (int j = stack[i].Count-1; j > 0; j--)
             {
-                
                 stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, forwardLerpValue);
             }
         }
     }
     public void UpdateWidth(int amount)
     {
-        width += amount;
+        
         if(amount < 0)
         {
-            for(int i= ((width-amount)-1); i >= width; i--)
+            width += amount;
+            for (int i= ((width-amount)-1); i >= width; i--)
             {
                 for(int j = 0; j < stack[i].Count; j++)
                 {
@@ -133,10 +134,10 @@ public class CanvasStack : MonoBehaviour
         }
         else
         {
-            for (int i = width - amount; i < width; i++)
+            for (int i = 0; i < amount; i++)
             {
                 //var x = stack[i - 1][0].transform.position.x - stackGap;
-                stack.Add(new List<CanvasSphere>());
+                stack.Insert(middleIndex , new List<CanvasSphere>());
                 for (int j = 0; j < length; j++)
                 {
                     var z = rootPoint.position.z;
@@ -145,13 +146,13 @@ public class CanvasStack : MonoBehaviour
                     sphere.transform.SetParent(this.transform);
                     var newPos = new Vector3(0, sphere.transform.localPosition.y, z);
                     sphere.transform.position = newPos;
-                    stack[i].Insert(0, sphere);
+                    stack[middleIndex].Add(sphere);
                     stackCount++;
                 }
+                width++;
             }
         }
         Observer.StackChanged?.Invoke();
-        //Observer.HandleCanvasLimits?.Invoke();
     }
     public void UpdateLength(int amount)
     {
@@ -171,24 +172,25 @@ public class CanvasStack : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < width; i++)
+            for (int i = stack.Count -1; i >= 0; i--)
             {
                 var x = (rootPoint.transform.position.x - i) * stackGap;
-                for (int j = stack[i].Count; j < length; j++)
+                for (int j = 0; j < amount; j++)
                 {
                     var z = (rootPoint.position.z - j) * stackGap;
                     var sphere = ObjectPooler.Instance.GetPooledSphere();
                     sphere.gameObject.SetActive(true);
                     sphere.transform.SetParent(this.transform);
-                    var newPos = new Vector3(x, sphere.transform.localPosition.y, z);
-                    sphere.transform.position = newPos;
-                    stack[i].Insert(stack[i].Count, sphere);
+                    //var newPos = new Vector3(x, sphere.transform.localPosition.y, 0);
+                    //sphere.transform.position = newPos;
+                    stack[i].Insert(stack[i].Count-1, sphere);
                     stackCount++;
                 }
             }
         }
         Observer.StackChanged?.Invoke();
     }
+    //This is for thin obstacle.
     public void RemoveLine(CanvasSphere sphere)
     {
         int index = 0;
@@ -209,21 +211,39 @@ public class CanvasStack : MonoBehaviour
         width--;
         stack[index].Clear();
         stack.RemoveAt(index);
-        SetStackText();
-        StartCoroutine(GatherAroundRoutine());
+        Observer.StackChanged?.Invoke();
+        //StartCoroutine(GatherAroundRoutine());
     }
-    private IEnumerator GatherAroundRoutine()
+
+    //This is for wall obstacle, but need to change how width/lenght decreases.
+    //Currently not working properly for the gates.
+    //TODO, Need to fix width gates for this obstacle to work.
+    public void RemoveSpheres(int amount)
     {
-        var timer = 0.7f;
-        obstacleContact = true;
-        while (timer > 0)
+        var tempValue = amount;
+        int value = 0;
+        while(true)
         {
-            timer -= Time.deltaTime;
-            yield return null;
-        }
-        //Observer.HandleCanvasLimits?.Invoke();
-        obstacleContact = false;
+            for (int j = length - 1; j > 0; j--)
+            {
+               
+                for (int i = width - 1; i >= 0; i--)
+                {
+                    stack[i][j].gameObject.SetActive(false);
+                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stack[i].RemoveAt(j);
+                    stackCount--;
+                    tempValue--;
+                    if (tempValue <= 0)
+                    {
+                        Observer.StackChanged?.Invoke();
+                        length -= value;
+                        return;
 
+                    }                 
+                }
+                value++;
+            }
+        }  
     }
-
 }

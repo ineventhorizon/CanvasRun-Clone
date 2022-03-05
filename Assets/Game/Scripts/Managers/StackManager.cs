@@ -5,6 +5,7 @@ using UnityEngine;
 public class StackManager : SceneBasedMonoSingleton<StackManager>
 {
     [SerializeField] private CanvasStack stack;
+    public int StackCount => stack.StackCount;
     public int Width
     {
         get { return stack.Width; }
@@ -59,16 +60,22 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
         }
     }
 
-    public void HandleObstacle(ObstacleType type ,CanvasSphere sphere)
+    public void HandleObstacle(ObstacleType type ,CanvasSphere sphere, int amount = 0)
     {
         switch (type)
         {
             case ObstacleType.THIN:
+                if(stack.Width == 1)
+                {
+                    GameManager.Instance.GameOver();
+                    return;
+                } 
                 stack.RemoveLine(sphere);
                 break;
             case ObstacleType.POOL:
                 break;
             case ObstacleType.WALL:
+                stack.RemoveSpheres(amount);
                 break;
             default:
                 break;
