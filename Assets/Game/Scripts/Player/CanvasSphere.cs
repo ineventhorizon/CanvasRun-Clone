@@ -8,6 +8,7 @@ public class CanvasSphere : MonoBehaviour
     [SerializeField] public Rigidbody RigidBody;
     public bool IsTriggered = false;
 
+
     //Sets sphere to it's default values.
     public void Default()
     {
@@ -18,6 +19,11 @@ public class CanvasSphere : MonoBehaviour
         this.transform.SetParent(ObjectPooler.Instance.transform);
         this.gameObject.SetActive(false);
         this.IsTriggered = false;
+    }
+    public void Destroyed()
+    {
+        //explosionParticle.Play();
+        this.Default();
     }
     public void Collected()
     {

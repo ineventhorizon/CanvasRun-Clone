@@ -128,7 +128,8 @@ public class CanvasStack : MonoBehaviour
             {
                 for(int j = 0; j < stack[i].Count; j++)
                 {
-                    stack[i][j].Default();
+                    //stack[i][j].Default();
+                    stack[i][j].Destroyed();
                     //stack[i][j].gameObject.SetActive(false);
                     //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
                     //stack[i][j].RemovedFromStack();
@@ -172,7 +173,8 @@ public class CanvasStack : MonoBehaviour
             {
                 for(int j = stack[i].Count - 1; j >= length; j--)
                 {
-                    stack[i][j].Default();
+                    //stack[i][j].Default();
+                    stack[i][j].Destroyed();
                     //stack[i][j].gameObject.SetActive(false);
                     //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
                     //stack[i][j].RemovedFromStack();
@@ -217,7 +219,8 @@ public class CanvasStack : MonoBehaviour
         }
         for(int i = stack[index].Count-1; i >= 0 ; i--)
         {
-            stack[index][i].Default();
+            //stack[index][i].Default();
+            stack[index][i].Destroyed();
             stackCount--;
         }
         width--;
@@ -246,7 +249,8 @@ public class CanvasStack : MonoBehaviour
                
                 for (int i = width - 1; i >= 0; i--)
                 {
-                    stack[i][j].Default();
+                    //stack[i][j].Default();
+                    stack[i][j].Destroyed();
                     stack[i].RemoveAt(j);
                     stackCount--;
                     tempValue--;

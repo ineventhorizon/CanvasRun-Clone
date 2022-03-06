@@ -39,6 +39,7 @@ public class Gate : MonoBehaviour
     {
         amount = Random.Range(1, 6);
         amount = status ? amount : -amount;
+        gateTypeText.SetText(gateType.ToString());
     }
     private void SetText()
     {
