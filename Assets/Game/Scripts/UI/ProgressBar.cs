@@ -13,4 +13,12 @@ public class ProgressBar : MonoBehaviour
         float fillAmount = ((float)current / (float)maximum);
         imageToFill.fillAmount = fillAmount;
     }
+    public void SetMaxValue(int value)
+    {
+        maximum = value;
+    }
+    public void ResetProgressBar()
+    {
+        imageToFill.fillAmount = 0;
+    }
 }

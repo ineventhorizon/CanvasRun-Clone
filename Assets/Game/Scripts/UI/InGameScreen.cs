@@ -6,6 +6,7 @@ using TMPro;
 public class InGameScreen : UIBase
 {
     [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField ]private int score = 0;
 
 
@@ -14,13 +15,15 @@ public class InGameScreen : UIBase
         score += amount;
         scoreText.SetText(score.ToString());
     }
-
-   //public void MultiplyScore(int multiplier)
-   //{
-   //    score *= multiplier;
-   //    scoreText.SetText(score.ToString());
-   //}
-
+    private void SetLevelText(int level)
+    {
+        levelText.SetText($"Level {level}");
+    }
+    public override void EnablePanel()
+    {
+        base.EnablePanel();
+        SetLevelText(MySceneManager.Instance.CurrentLevel);
+    }
     public override void DisablePanel()
     {
         base.DisablePanel();
