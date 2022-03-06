@@ -116,7 +116,7 @@ public class CanvasStack : MonoBehaviour
             {
                 stack[i][j].transform.position = Vector3.Lerp(stack[i][j].transform.position, stack[i][j - 1].transform.position + offset, forwardLerpValue);
             }
-        }
+        }   
     }
     public void UpdateWidth(int amount)
     {
@@ -128,11 +128,7 @@ public class CanvasStack : MonoBehaviour
             {
                 for(int j = 0; j < stack[i].Count; j++)
                 {
-                    //stack[i][j].Default();
                     stack[i][j].Destroyed();
-                    //stack[i][j].gameObject.SetActive(false);
-                    //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
-                    //stack[i][j].RemovedFromStack();
                     stackCount--;
                 }
                 stack[i].Clear();
@@ -143,7 +139,6 @@ public class CanvasStack : MonoBehaviour
         {
             for (int i = 0; i < amount; i++)
             {
-                //var x = stack[i - 1][0].transform.position.x - stackGap;
                 stack.Insert(0 , new List<CanvasSphere>());
                 for (int j = 0; j < length; j++)
                 {
@@ -151,7 +146,6 @@ public class CanvasStack : MonoBehaviour
                     var sphere = ObjectPooler.Instance.GetPooledSphere();
                     sphere.transform.SetParent(this.transform);
                     var newPos = new Vector3(0, sphere.transform.localPosition.y, z);
-                    //sphere.transform.position = newPos;
                     stack[0].Add(sphere);
                     sphere.gameObject.SetActive(true);
                     StartCoroutine(MoveToPosition(sphere, newPos));
@@ -173,11 +167,7 @@ public class CanvasStack : MonoBehaviour
             {
                 for(int j = stack[i].Count - 1; j >= length; j--)
                 {
-                    //stack[i][j].Default();
                     stack[i][j].Destroyed();
-                    //stack[i][j].gameObject.SetActive(false);
-                    //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
-                    //stack[i][j].RemovedFromStack();
                     stack[i].RemoveAt(j);
                     
                     stackCount--;
@@ -219,7 +209,6 @@ public class CanvasStack : MonoBehaviour
         }
         for(int i = stack[index].Count-1; i >= 0 ; i--)
         {
-            //stack[index][i].Default();
             stack[index][i].Destroyed();
             stackCount--;
         }
@@ -227,29 +216,19 @@ public class CanvasStack : MonoBehaviour
         stack[index].Clear();
         stack.RemoveAt(index);
         Observer.StackChanged?.Invoke();
-        //StartCoroutine(GatherAroundRoutine());
     }
-
-    //This is for wall obstacle, but need to change how width/lenght decreases.
-    //Currently not working properly for the gates.
-    //TODO, Need to fix width gates for this obstacle to work.
+    //This is for wall obstacle.
     public void RemoveSpheres(int amount)
     {
         var tempValue = amount;
         int value = 0;
         while(true)
         {
-           // for(int i = width -1; i>=0; i--)
-           // {
-           //     for(int j = stack[i].Count-1;j>0;j--)
-           // }
-           //
             for (int j = stack[width-1].Count - 1; j > 0; j--)
             {
                
                 for (int i = width - 1; i >= 0; i--)
                 {
-                    //stack[i][j].Default();
                     stack[i][j].Destroyed();
                     stack[i].RemoveAt(j);
                     stackCount--;
@@ -257,7 +236,6 @@ public class CanvasStack : MonoBehaviour
                     if (tempValue <= 0)
                     {
                         Observer.StackChanged?.Invoke();
-                        //value++;
                         length -= value;
                         return;
 
@@ -267,7 +245,6 @@ public class CanvasStack : MonoBehaviour
             }
         }  
     }
-
     private IEnumerator MoveToPosition(CanvasSphere sphere, Vector3 newPos)
     {
         yield return sphere.transform.DOMove(newPos, 0.2f)
@@ -275,7 +252,6 @@ public class CanvasStack : MonoBehaviour
             .OnComplete(() => OnCompleteMoving(sphere))
             .WaitForCompletion();
     }
-
     private void OnCompleteMoving(CanvasSphere sphere)
     {
         sphere.Collected();
