@@ -39,15 +39,15 @@ public class Gate : MonoBehaviour
     {
         amount = Random.Range(1, 6);
         amount = status ? amount : -amount;
-        gateTypeText.SetText(gateType.ToString());
-        SetText();
     }
     private void SetText()
     {
         switch (gateType)
         {
             case GateType.WIDTH:
-                gateText.SetText((amount * StackManager.Instance.Length).ToString());
+                var text = status ? (amount * StackManager.Instance.Length).ToString() 
+                    : (amount * StackManager.Instance.WidthAmountToRemove).ToString();
+                gateText.SetText(text);
                 break;
             case GateType.LENGTH:
                 gateText.SetText((amount * StackManager.Instance.Width).ToString());
@@ -61,7 +61,7 @@ public class Gate : MonoBehaviour
     {
         if (other.CompareTag("Sphere") && !isTriggered)
         {
-            Debug.Log("Entered");
+            Debug.Log("Hit gate");
             StackManager.Instance.HandleGate(gateType, amount);
             UIManager.Instance.InGameScreen.SetScore(amount * 10);
             isTriggered = true;         

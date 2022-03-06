@@ -6,6 +6,7 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
 {
     [SerializeField] private CanvasStack stack;
     public int StackCount => stack.StackCount;
+    public int WidthAmountToRemove => stack.WidthAmountToRemove;
     public int Width
     {
         get { return stack.Width; }
@@ -75,6 +76,11 @@ public class StackManager : SceneBasedMonoSingleton<StackManager>
             case ObstacleType.POOL:
                 break;
             case ObstacleType.WALL:
+                if(stack.StackCount - amount <= 0)
+                {
+                    GameManager.Instance.GameOver();
+                    return;
+                }
                 stack.RemoveSpheres(amount);
                 break;
             default:

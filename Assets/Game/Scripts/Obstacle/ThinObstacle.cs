@@ -12,8 +12,7 @@ public class ThinObstacle : MonoBehaviour
         if (other.CompareTag("Sphere") && !isTriggered && !(collidePoint.z <= 0))
         {
             var sphere = other.GetComponent<CanvasSphere>();
-            Debug.Log(collidePoint);
-            Debug.Log(other.name);
+            Debug.Log("Hit thin obstacle");
             isTriggered = true;
             StackManager.Instance.HandleObstacle(type, sphere);
         }

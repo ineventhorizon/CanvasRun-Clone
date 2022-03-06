@@ -11,16 +11,16 @@ public class CanvasSphere : MonoBehaviour
     //Sets sphere to it's default values.
     public void Default()
     {
+        this.transform.position = Vector3.zero;
         this.RigidBody.isKinematic = true;
         this.Collider.isTrigger = true;
+        this.Collider.enabled = false;
         this.transform.SetParent(ObjectPooler.Instance.transform);
         this.gameObject.SetActive(false);
         this.IsTriggered = false;
     }
-    public IEnumerator LifeTimeRoutine()
+    public void Collected()
     {
-        yield return new WaitForSeconds(10);
-        this.IsTriggered = true;
-        StackManager.Instance.DecreaseStackCount();
+        this.Collider.enabled = true;
     }
 }

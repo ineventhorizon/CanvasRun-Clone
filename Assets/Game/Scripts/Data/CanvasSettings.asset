@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207173ad981286a4d91f17efe4dd6bd9, type: 3}
   m_Name: CanvasSettings
   m_EditorClassIdentifier: 
-  forwardSpeed: 10
+  forwardSpeed: 12
   sideMovementSensivity: 10
   sideLerpValue: 1
-  forwardLerpValue: 0.33
+  forwardLerpValue: 0.3
   gap: 0.3

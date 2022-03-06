@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using NaughtyAttributes;
 using TMPro;
+using DG.Tweening;
 
 public class CanvasStack : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class CanvasStack : MonoBehaviour
     private float stackGap => SettingsManager.CanvasSettings.gap;
     private float sideLerpValue => SettingsManager.CanvasSettings.sideLerpValue;
     private float forwardLerpValue => SettingsManager.CanvasSettings.forwardLerpValue;
+    //Width gates will remove or
+    public int WidthAmountToRemove => stack[stack.Count - 1].Count;
     private int middleIndex => Mathf.FloorToInt((width / 2));
     private int stackCount = 0;
     private Vector3 offset;
@@ -69,8 +72,9 @@ public class CanvasStack : MonoBehaviour
             stack.Add(new List<CanvasSphere>());
             for(int j = 0; j < length; j++)
             {
-                var z = (transform.position.z - j) * stackGap;
+                var z = (transform.position.z - j * stackGap);
                 var sphere = ObjectPooler.Instance.GetPooledSphere();
+                sphere.Collected();
                 sphere.gameObject.SetActive(true);
                 sphere.transform.SetParent(this.transform);
                 var newPos = new Vector3(x, stackGap/2, z);
@@ -79,7 +83,7 @@ public class CanvasStack : MonoBehaviour
                 stackCount++;
             }
         }
-        SetStackText();
+        Observer.StackChanged?.Invoke();
     }
     private void UpdateOffSet()
     {
@@ -93,7 +97,7 @@ public class CanvasStack : MonoBehaviour
         for (int i = 0; i < stack.Count; i++)
         {
             stack[i][0].transform.rotation = Quaternion.Lerp(stack[i][0].transform.localRotation, rootPoint.rotation, sideLerpValue);
-            if (i == Mathf.FloorToInt((width / 2))) continue;
+            if (i == middleIndex) continue;
             stack[i][0].transform.rotation = rootPoint.rotation;
             var rotationOffset = Mathf.Sin(rootPoint.rotation.y)*(i- middleIndex) *stackGap;
             stack[i][0].transform.position = Vector3.Lerp(stack[i][0].transform.position, stack[middleIndex][0].transform.position + Vector3.left * stackGap*(i- middleIndex), sideLerpValue);
@@ -124,8 +128,10 @@ public class CanvasStack : MonoBehaviour
             {
                 for(int j = 0; j < stack[i].Count; j++)
                 {
-                    stack[i][j].gameObject.SetActive(false);
-                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stack[i][j].Default();
+                    //stack[i][j].gameObject.SetActive(false);
+                    //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    //stack[i][j].RemovedFromStack();
                     stackCount--;
                 }
                 stack[i].Clear();
@@ -137,16 +143,18 @@ public class CanvasStack : MonoBehaviour
             for (int i = 0; i < amount; i++)
             {
                 //var x = stack[i - 1][0].transform.position.x - stackGap;
-                stack.Insert(middleIndex , new List<CanvasSphere>());
+                stack.Insert(0 , new List<CanvasSphere>());
                 for (int j = 0; j < length; j++)
                 {
-                    var z = rootPoint.position.z;
+                    var z = (rootPoint.position.z - j* stackGap);
                     var sphere = ObjectPooler.Instance.GetPooledSphere();
-                    sphere.gameObject.SetActive(true);
                     sphere.transform.SetParent(this.transform);
                     var newPos = new Vector3(0, sphere.transform.localPosition.y, z);
-                    sphere.transform.position = newPos;
-                    stack[middleIndex].Add(sphere);
+                    //sphere.transform.position = newPos;
+                    stack[0].Add(sphere);
+                    sphere.gameObject.SetActive(true);
+                    StartCoroutine(MoveToPosition(sphere, newPos));
+
                     stackCount++;
                 }
                 width++;
@@ -156,16 +164,20 @@ public class CanvasStack : MonoBehaviour
     }
     public void UpdateLength(int amount)
     {
-        length += amount;
+        
         if(amount < 0)
         {
-            for(int i = 0; i < width; i++)
+            length += amount;
+            for (int i = 0; i < width; i++)
             {
                 for(int j = stack[i].Count - 1; j >= length; j--)
                 {
-                    stack[i][j].gameObject.SetActive(false);
-                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stack[i][j].Default();
+                    //stack[i][j].gameObject.SetActive(false);
+                    //stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    //stack[i][j].RemovedFromStack();
                     stack[i].RemoveAt(j);
+                    
                     stackCount--;
                 }
             }
@@ -174,19 +186,20 @@ public class CanvasStack : MonoBehaviour
         {
             for (int i = stack.Count -1; i >= 0; i--)
             {
-                var x = (rootPoint.transform.position.x - i) * stackGap;
+                var x = (rootPoint.transform.position.x - i * stackGap) ;
                 for (int j = 0; j < amount; j++)
                 {
-                    var z = (rootPoint.position.z - j) * stackGap;
                     var sphere = ObjectPooler.Instance.GetPooledSphere();
-                    sphere.gameObject.SetActive(true);
                     sphere.transform.SetParent(this.transform);
-                    //var newPos = new Vector3(x, sphere.transform.localPosition.y, 0);
+                    var newPos = new Vector3(x, sphere.transform.localPosition.y, 0);
                     //sphere.transform.position = newPos;
                     stack[i].Insert(stack[i].Count-1, sphere);
+                    sphere.gameObject.SetActive(true);
+                    StartCoroutine(MoveToPosition(sphere, newPos));
                     stackCount++;
                 }
             }
+            length += amount;
         }
         Observer.StackChanged?.Invoke();
     }
@@ -204,8 +217,7 @@ public class CanvasStack : MonoBehaviour
         }
         for(int i = stack[index].Count-1; i >= 0 ; i--)
         {
-            stack[index][i].gameObject.SetActive(false);
-            stack[index][i].transform.SetParent(ObjectPooler.Instance.transform);
+            stack[index][i].Default();
             stackCount--;
         }
         width--;
@@ -224,19 +236,24 @@ public class CanvasStack : MonoBehaviour
         int value = 0;
         while(true)
         {
-            for (int j = length - 1; j > 0; j--)
+           // for(int i = width -1; i>=0; i--)
+           // {
+           //     for(int j = stack[i].Count-1;j>0;j--)
+           // }
+           //
+            for (int j = stack[width-1].Count - 1; j > 0; j--)
             {
                
                 for (int i = width - 1; i >= 0; i--)
                 {
-                    stack[i][j].gameObject.SetActive(false);
-                    stack[i][j].transform.SetParent(ObjectPooler.Instance.transform);
+                    stack[i][j].Default();
                     stack[i].RemoveAt(j);
                     stackCount--;
                     tempValue--;
                     if (tempValue <= 0)
                     {
                         Observer.StackChanged?.Invoke();
+                        //value++;
                         length -= value;
                         return;
 
@@ -245,5 +262,18 @@ public class CanvasStack : MonoBehaviour
                 value++;
             }
         }  
+    }
+
+    private IEnumerator MoveToPosition(CanvasSphere sphere, Vector3 newPos)
+    {
+        yield return sphere.transform.DOMove(newPos, 0.2f)
+            .SetEase(Ease.Linear)
+            .OnComplete(() => OnCompleteMoving(sphere))
+            .WaitForCompletion();
+    }
+
+    private void OnCompleteMoving(CanvasSphere sphere)
+    {
+        sphere.Collected();
     }
 }

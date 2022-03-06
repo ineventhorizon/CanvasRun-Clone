@@ -8,7 +8,7 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
     [SerializeField] private CanvasSphere sphereObject;
     [SerializeField] public List<CanvasSphere> pooledSpheres;
     [SerializeField] public int projectilePoolAmount;
-    void Start()
+    private void Awake()
     {
         CreateSpheres();
     }
@@ -18,6 +18,7 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
         for (int i = 0; i < projectilePoolAmount; i++)
         {
             var obj = Instantiate(sphereObject, parentSphere);
+            obj.Default();
             pooledSpheres.Add(obj);
             obj.gameObject.SetActive(false);
         }
@@ -28,11 +29,11 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
         {
             if (!pooledSpheres[i].gameObject.activeInHierarchy)
             {
-                pooledSpheres[i].Default();
                 return pooledSpheres[i];
             }
         }
         var obj = Instantiate(sphereObject, parentSphere);
+        obj.Default();
         pooledSpheres.Add(obj);
         return obj;
     }
@@ -43,11 +44,7 @@ public class ObjectPooler : MonoSingleton<ObjectPooler>
         {
             if (pooledSpheres[i].gameObject.activeInHierarchy)
             {
-                pooledSpheres[i].gameObject.transform.SetParent(this.transform);
-                pooledSpheres[i].gameObject.SetActive(false);
-                pooledSpheres[i].RigidBody.isKinematic = true;
-                pooledSpheres[i].Collider.isTrigger = true;
-                pooledSpheres[i].IsTriggered = false;
+                pooledSpheres[i].Default();
                 Debug.Log("Disabled");
             }
         }

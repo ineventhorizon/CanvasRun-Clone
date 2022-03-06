@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class WallObstacle : MonoBehaviour
 {
@@ -20,9 +21,7 @@ public class WallObstacle : MonoBehaviour
     }
     void Start()
     {
-        amount = Random.Range(10, 40);
-        
-        SetText();
+        amount = Random.Range(10, 50);
     }
     private void SetText()
     {
@@ -36,6 +35,16 @@ public class WallObstacle : MonoBehaviour
         {
             isTriggered = true;
             StackManager.Instance.HandleObstacle(type, null, amount);
+            Debug.Log("Hit wall");
+            HandleHit();
+
         }
+    }
+    private void HandleHit()
+    {
+        transform.DOMove(Vector3.right*12, 0.5f)
+            .SetRelative()
+            .SetEase(Ease.OutElastic)
+            .OnComplete(() => Destroy(gameObject));
     }
 }
